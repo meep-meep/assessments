@@ -1,0 +1,26 @@
+{
+  "name": "mm-assessments",
+  "version": "0.0.1",
+  "description": "Provides an interface to assessments in a meep-meep server",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tsatse/assessments.git"
+  },
+  "keywords": [
+    "meep-meep",
+    "tests"
+  ],
+  "author": "Joachim Revol-Tissot",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tsatse/assessments/issues"
+  },
+  "homepage": "https://github.com/tsatse/assessments"
+}
