@@ -1,24 +1,30 @@
 var RSVP = require('rsvp');
+var events = require('events');
 
 var platformMatcher = require('mm-platform-matcher');
 
 
-var _dataAdapter = null;
 var assessmentStatuses = {};
 
-var NO_PLATFORM_MATCHING = 'No platform matching tags';
-var NO_TEST_MATCHING = 'No test matching tags';
-var PENDING = 'Pending';
-var SUCCESS = 'Success';
-var FAILURE = 'Failure';
 
 
 function Assessments(dataAdapter) {
     this._dataAdapter = dataAdapter;
+    this._events = new events.EventEmitter();
 }
+
+Assessments.NO_PLATFORM_MATCHING = 'No platform matching tags';
+Assessments.NO_TEST_MATCHING = 'No test matching tags';
+Assessments.PENDING = 'Pending';
+Assessments.SUCCESS = 'Success';
+Assessments.FAILURE = 'Failure';
 
 
 Assessments.prototype = {
+    on: function on(eventName, callback) {
+        this._events.on(eventName, callback);
+    },
+
     getTagsFromTest: function getTagsFromTest(test) {
         for(var testTags in test) {}
         return testTags;
@@ -49,19 +55,19 @@ Assessments.prototype = {
 
     reduceTestResults: function reduceTestResults(resultArray) {
         return resultArray.reduce(function(element1, element2) {
-            if(element1 === NO_PLATFORM_MATCHING && element2 === NO_TEST_MATCHING) {
+            if(element1 === Assessments.NO_PLATFORM_MATCHING && element2 === Assessments.NO_TEST_MATCHING) {
                 return NO_PLATFORM_MATCHING;
             }
-            if(element1 === NO_TEST_MATCHING || element1 === NO_PLATFORM_MATCHING || element1 === null) {
+            if(element1 === Assessments.NO_TEST_MATCHING || element1 === Assessments.NO_PLATFORM_MATCHING || element1 === null) {
                 return element2;
             }
-            if(element1 === FAILURE || element2 === FAILURE) {
-                return FAILURE;
+            if(element1 === Assessments.FAILURE || element2 === Assessments.FAILURE) {
+                return Assessments.FAILURE;
             }
-            if(element1 === PENDING || element2 === PENDING) {
-                return PENDING;
+            if(element1 === Assessments.PENDING || element2 === Assessments.PENDING) {
+                return Assessments.PENDING;
             }
-            return SUCCESS;
+            return Assessments.SUCCESS;
         }, null);
     },
 
@@ -78,22 +84,22 @@ Assessments.prototype = {
 
             if(this.matchTags(assessmentTestTags, testTags)) {
                 if(!platformMatcher.isAKnownPlatform(assessmentPlatformTags)) {
-                    return NO_PLATFORM_MATCHING;
+                    return Assessments.NO_PLATFORM_MATCHING;
                 }
                 // check that it was launched on the right platforms
                 var matchingResults = (results
                     .filter(function(result) {
                         return this.matchTags(testTags, result.tags) && platformMatcher.match(assessmentPlatformTags, result.ua);
-                    })
+                    }.bind(this))
                     .filter(function(result) {
                         return result.reportTime > assessmentId;
                     }));
                 if(!matchingResults.length) {
-                    return PENDING;
+                    return Assessments.PENDING;
                 }
-                return matchingResults.every(function(result) {return !result.failures;}) ? SUCCESS : FAILURE;
+                return matchingResults.every(function(result) {return !result.failures;}) ? Assessments.SUCCESS : Assessments.FAILURE;
             }
-            return NO_TEST_MATCHING;
+            return Assessments.NO_TEST_MATCHING;
         }.bind(this));
     },
 
@@ -119,6 +125,7 @@ Assessments.prototype = {
                 return this._dataAdapter.set('assessments', assessmentNames);
             }.bind(this))
             .then(function() {
+                this._events.emit('assessment_created', creationTime);
                 return RSVP.all([
                     this._dataAdapter.set('assessment/' + creationTime + '/name', name),
                     this._dataAdapter.set('assessment/' + creationTime + '/definition', [[testTags, platformTags]])
