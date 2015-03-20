@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tsatse/assessments.git"
+    "url": "https://github.com/meep-meep/assessments.git"
   },
   "keywords": [
     "meep-meep",
@@ -20,9 +20,9 @@
   "author": "Joachim Revol-Tissot",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tsatse/assessments/issues"
+    "url": "https://github.com/meep-meep/assessments/issues"
   },
-  "homepage": "https://github.com/tsatse/assessments",
+  "homepage": "https://github.com/meep-meep/assessments",
   "dependencies": {
     "mm-platform-matcher": "git://github.com/meep-meep/platform-matcher.git",
     "rsvp": "^3.0.17"
