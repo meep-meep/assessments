@@ -25,7 +25,7 @@ Assessments.prototype = {
         this._events.on(eventName, callback);
     },
 
-    getTagsFromTest: function getTagsFromTest(test) {
+    _getTagsFromTest: function _getTagsFromTest(test) {
         for(var testTags in test) {}
         return testTags;
     },
@@ -41,7 +41,7 @@ Assessments.prototype = {
                 tests.forEach(function(test) {
                     var testResultForEachConstraint = this.getTestResultForEachConstraint(
                         hash.assessmentDefinition,
-                        this.getTagsFromTest(test),
+                        this._getTagsFromTest(test),
                         hash.results,
                         assessmentId
                         );
@@ -161,6 +161,10 @@ Assessments.prototype = {
                         });
                     }.bind(this));
             }.bind(this))
+    },
+
+    getDataAdapter: function getDataAdapter() {
+        return this._dataAdapter;
     }
 };
 
