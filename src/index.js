@@ -107,7 +107,7 @@ Assessments.prototype = {
         if(typeof tagList !== 'string') {
             return tagList;
         }
-        return tagList.split(',').map(function(element) {return element.trim();});
+        return tagList.split(',').map(function(element) {return element.trim().toLowerCase();});
     },
 
     matchTags: function matchTags(candidates, reference) {
