@@ -118,7 +118,7 @@ Assessments.prototype = {
         });
     },
 
-    createAssessment: function createAssessment(name, testTags, platformTags, creationTime) {
+    createAssessment: function createAssessment(name, constraints, creationTime) {
         return this._dataAdapter.get('assessments')
             .then(function(assessmentNames) {
                 assessmentNames.push(creationTime);
@@ -128,7 +128,7 @@ Assessments.prototype = {
                 this._events.emit('assessment_created', creationTime);
                 return RSVP.all([
                     this._dataAdapter.set('assessment/' + creationTime + '/name', name),
-                    this._dataAdapter.set('assessment/' + creationTime + '/definition', [[testTags, platformTags]])
+                    this._dataAdapter.set('assessment/' + creationTime + '/definition', constraints)
                 ]);
             }.bind(this));
     },

@@ -1,6 +1,6 @@
 {
   "name": "mm-assessments",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Provides an interface to assessments in a meep-meep server",
   "main": "src/index.js",
   "directories": {
