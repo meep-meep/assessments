@@ -80,7 +80,7 @@ Assessments.prototype = {
         return assessmentDefinition.map(function(definition) {
             // check that the test qualifies for this constraint
             var assessmentTestTags = definition[0];
-            var assessmentPlatformTags = definition[1].split(',').map(function(tag) {return tag.trim()});
+            var assessmentPlatformTags = definition[1].split(',').map(function(tag) {return tag.trim();});
 
             if(this.matchTags(assessmentTestTags, testTags)) {
                 if(!platformMatcher.isAKnownPlatform(assessmentPlatformTags)) {
@@ -160,7 +160,7 @@ Assessments.prototype = {
                             };
                         });
                     }.bind(this));
-            }.bind(this))
+            }.bind(this));
     },
 
     getDataAdapter: function getDataAdapter() {
