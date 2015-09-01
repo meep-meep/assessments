@@ -98,7 +98,13 @@ Assessments.prototype = {
                     results
                         .filter(function(result) {
                             return (
-                                this.matchTags(testTags, result.tags.split(',').map(function(tag) {return tag.toLowerCase()})) &&
+                                this.matchTags(
+                                    testTags,
+                                    result
+                                        .tags
+                                        .split(',')
+                                        .map(function(tag) {return tag.toLowerCase();})
+                                ) &&
                                 platformMatcher.match(assessmentPlatformTags, result.ua)
                             );
                         }.bind(this))
