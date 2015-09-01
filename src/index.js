@@ -26,8 +26,15 @@ Assessments.prototype = {
     },
 
     _getTagsFromTest: function _getTagsFromTest(test) {
-        for(var testTags in test) {}
-        return testTags;
+        return (
+            Object.keys(test)[0]
+                .split(',')
+                .map(
+                    function(test) {
+                        return test.trim().toLowerCase();
+                    }
+                )
+        );
     },
 
     getAssessmentStatus: function getAssessmentStatus(tests, assessmentId) {
@@ -80,20 +87,25 @@ Assessments.prototype = {
         return assessmentDefinition.map(function(definition) {
             // check that the test qualifies for this constraint
             var assessmentTestTags = definition[0];
-            var assessmentPlatformTags = definition[1].split(',').map(function(tag) {return tag.trim();});
+            var assessmentPlatformTags = definition[1].map(function(tag) {return tag.trim();});
 
             if(this.matchTags(assessmentTestTags, testTags)) {
                 if(!platformMatcher.isAKnownPlatform(assessmentPlatformTags)) {
                     return Assessments.NO_PLATFORM_MATCHING;
                 }
                 // check that it was launched on the right platforms
-                var matchingResults = (results
-                    .filter(function(result) {
-                        return this.matchTags(testTags, result.tags) && platformMatcher.match(assessmentPlatformTags, result.ua);
-                    }.bind(this))
-                    .filter(function(result) {
-                        return result.reportTime > assessmentId;
-                    }));
+                var matchingResults = (
+                    results
+                        .filter(function(result) {
+                            return (
+                                this.matchTags(testTags, result.tags.split(',').map(function(tag) {return tag.toLowerCase()})) &&
+                                platformMatcher.match(assessmentPlatformTags, result.ua)
+                            );
+                        }.bind(this))
+                        .filter(function(result) {
+                            return result.reportTime > assessmentId;
+                        })
+                );
                 if(!matchingResults.length) {
                     return Assessments.PENDING;
                 }
@@ -104,10 +116,7 @@ Assessments.prototype = {
     },
 
     convert: function convert(tagList) {
-        if(typeof tagList !== 'string') {
-            return tagList;
-        }
-        return tagList.split(',').map(function(element) {return element.trim().toLowerCase();});
+        return tagList.map(function(element) {return element.trim().toLowerCase();});
     },
 
     matchTags: function matchTags(candidates, reference) {
