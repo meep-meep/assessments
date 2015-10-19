@@ -180,6 +180,18 @@ Assessments.prototype = {
 
     getDataAdapter: function getDataAdapter() {
         return this._dataAdapter;
+    },
+
+    matchTestToAssessment: function matchTestToAssessment(test, assessment) {
+        return (
+            test.reportTime > assessment.id &&
+            assessment.definition.some(function(constraint) {
+                return this.matchTags(
+                    constraint[0],
+                    test.tags.split(',').map(function(tag) {return tag.trim().toLowerCase();})) &&
+                platformMatcher.match(constraint[1], test.ua);
+            }.bind(this))
+        );
     }
 };
 
