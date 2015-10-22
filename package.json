@@ -7,7 +7,13 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "cov": "mocha --require blanket -R html-cov > coverage.html"
+  },
+  "config": {
+    "blanket": {
+      "pattern": ["src/index.js"]
+    }
   },
   "repository": {
     "type": "git",
@@ -28,6 +34,7 @@
     "rsvp": "^3.0.17"
   },
   "devDependencies": {
+    "blanket": "^1.1.7",
     "expect.js": "^0.3.1",
     "mocha": "^2.3.3",
     "mockery": "^1.4.0"
