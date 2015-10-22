@@ -63,7 +63,7 @@ Assessments.prototype = {
     reduceTestResults: function reduceTestResults(resultArray) {
         return resultArray.reduce(function(element1, element2) {
             if(element1 === Assessments.NO_PLATFORM_MATCHING && element2 === Assessments.NO_TEST_MATCHING) {
-                return NO_PLATFORM_MATCHING;
+                return Assessments.NO_PLATFORM_MATCHING;
             }
             if(element1 === Assessments.NO_TEST_MATCHING || element1 === Assessments.NO_PLATFORM_MATCHING || element1 === null) {
                 return element2;
