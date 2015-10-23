@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var Assessments = require('../src/index.js');
+var Assessments;
 var mockery = require('mockery');
 var assessments;
 var dataAdapterMock;
@@ -8,19 +8,27 @@ var dataAdapterMock;
 describe('Assessments', function() {
     before(function() {
         mockery.enable({useCleanCache: true});
-        mockery.registerAllowable('RSVP');
+        mockery.registerAllowable('rsvp');
         mockery.registerAllowable('events');
-        mockery.registerMock('mm-platform-matcher', {});
+        mockery.registerAllowable('../src/index.js');
         dataAdapterMock = {};
-        assessments = new Assessments(dataAdapterMock);
     });
 
     after(function() {
-        mockery.deregisterMock('mm-platform-matcher');
         mockery.disable();
     });
 
     describe('reduceTestResults', function() {
+        before(function() {
+            mockery.registerMock('mm-platform-matcher', {});
+            Assessments = require('../src/index.js');
+            assessments = new Assessments(dataAdapterMock);
+        });
+
+        after(function() {
+            mockery.deregisterMock('mm-platform-matcher');
+        });
+
         it('all FAILURE should give FAILURE', function() {
             expect(assessments.reduceTestResults([
                 Assessments.FAILURE,
@@ -144,6 +152,17 @@ describe('Assessments', function() {
     });
 
     describe('convert', function() {
+        before(function() {
+            mockery.resetCache();
+            mockery.registerMock('mm-platform-matcher', {});
+            Assessments = require('../src/index.js');
+            assessments = new Assessments(dataAdapterMock);
+        });
+
+        after(function() {
+            mockery.deregisterMock('mm-platform-matcher');
+        });
+
         it('should convert an empty Array to an empty Array', function() {
             expect(assessments.convert([])).to.eql([]);
         });
@@ -158,6 +177,17 @@ describe('Assessments', function() {
     });
 
     describe('matchTags', function() {
+        before(function() {
+            mockery.resetCache();
+            mockery.registerMock('mm-platform-matcher', {});
+            Assessments = require('../src/index.js');
+            assessments = new Assessments(dataAdapterMock);
+        });
+
+        after(function() {
+            mockery.deregisterMock('mm-platform-matcher');
+        });
+
         it('should match if all candidates match', function() {
             expect(
                 assessments.matchTags(
@@ -210,6 +240,80 @@ describe('Assessments', function() {
                     []
                 )
             ).to.be(true);
+        });
+    });
+
+    describe('matchTestToAssessment', function() {
+        describe('regardless of the platform', function() {
+            before(function() {
+                mockery.resetCache();
+                mockery.registerMock('mm-platform-matcher', {});
+                Assessments = require('../src/index.js');
+                assessments = new Assessments(dataAdapterMock);
+            });
+
+            after(function() {
+                mockery.deregisterMock('mm-platform-matcher');
+            });
+
+            it('should not match when the test is older than the assessment', function() {
+                expect(assessments.matchTestToAssessment(
+                    {reportTime: 5,},
+                    {id: 6}
+                    )).to.be(false);
+            });
+
+            it('should not match when no constraint matches the test', function() {
+                expect(assessments.matchTestToAssessment(
+                    {reportTime: 5, tags: 'strawberries, melon'},
+                    {id: 4, definition: [[['apples', 'oranges'], ['platformTag', 'otherPlatformTag']]]}
+                    )).to.be(false);
+            });
+        });
+
+        describe('with a matching platform', function() {
+            before(function() {
+                mockery.resetCache();
+                mockery.registerMock('mm-platform-matcher', {match: function(a, b) {return true;}});
+                Assessments = require('../src/index.js');
+                assessments = new Assessments(dataAdapterMock);
+            });
+
+            after(function() {
+                mockery.deregisterMock('mm-platform-matcher');
+            });
+
+            it('should match when a constraint matches the test', function() {
+                expect(assessments.matchTestToAssessment(
+                    {reportTime: 5, tags: 'strawberries, melon'},
+                    {id: 4, definition: [
+                        [['apples', 'oranges'], ['platformTag', 'otherPlatformTag']],
+                        [['strawberries', 'melon'], ['platformTag', 'otherPlatformTag']]
+                    ]}
+                    )).to.be(true);
+            });
+        });
+        describe('with a non matching platform', function() {
+            before(function() {
+                mockery.resetCache();
+                mockery.registerMock('mm-platform-matcher', {match: function(a, b) {return false;}});
+                Assessments = require('../src/index.js');
+                assessments = new Assessments(dataAdapterMock);
+            });
+
+            after(function() {
+                mockery.deregisterMock('mm-platform-matcher');
+            });
+
+            it('should not match when a constraint matches the test', function() {
+                expect(assessments.matchTestToAssessment(
+                    {reportTime: 5, tags: 'strawberries, melon'},
+                    {id: 4, definition: [
+                        [['apples', 'oranges'], ['platformTag', 'otherPlatformTag']],
+                        [['strawberries', 'melon'], ['platformTag', 'otherPlatformTag']]
+                    ]}
+                    )).to.be(false);
+            });
         });
     });
 });
