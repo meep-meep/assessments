@@ -26,15 +26,7 @@ Assessments.prototype = {
     },
 
     _getTagsFromTest: function _getTagsFromTest(test) {
-        return (
-            Object.keys(test)[0]
-                .split(',')
-                .map(
-                    function(test) {
-                        return test.trim().toLowerCase();
-                    }
-                )
-        );
+        return this.convert(Object.keys(test)[0].split(','));
     },
 
     getAssessmentStatus: function getAssessmentStatus(tests, assessmentId) {
@@ -188,7 +180,7 @@ Assessments.prototype = {
             assessment.definition.some(function(constraint) {
                 return this.matchTags(
                     constraint[0],
-                    test.tags.split(',').map(function(tag) {return tag.trim().toLowerCase();})) &&
+                    this.convert(test.tags.split(','))) &&
                 platformMatcher.match(constraint[1], test.ua);
             }.bind(this))
         );
